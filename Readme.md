@@ -2,4 +2,4 @@
 
 
 Assignment 5:
-![Alt Text](https://imgur.com/XVBUmdY.gif
+![Surface area gif](https://github.com/Sodaro/3DMathGameDev/blob/main/surfacearea.gif)
