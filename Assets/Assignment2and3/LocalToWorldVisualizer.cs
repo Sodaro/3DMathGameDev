@@ -10,10 +10,6 @@ public class LocalToWorldVisualizer : MonoBehaviour
 	private void OnDrawGizmos()
 	{
         Transform tf = transform;
-        //Vector3 pos = transform.position;
-        //Vector3 rotatedX = _localOffset.x * ;
-        //Vector3 rotatedY = _localOffset.y * ;
-        //Vector3 rotatedZ = _localOffset.z * transform.forward;
 
         Vector3 transformedOffset = tf.position + (_localOffset.x * tf.right) + (_localOffset.y * tf.up) + (_localOffset.z * tf.forward);
 

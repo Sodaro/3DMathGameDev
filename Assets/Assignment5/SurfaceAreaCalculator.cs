@@ -15,7 +15,6 @@ public class SurfaceAreaCalculator : MonoBehaviour
 	private void OnValidate()
 	{
 		EditorApplication.delayCall += OnValidationDone;
-		//Debug.Log($"surfaceAreaOfMesh: {surfaceAreaOfMesh}");
 	}
 
 	private void OnValidationDone()
@@ -36,19 +35,11 @@ public class SurfaceAreaCalculator : MonoBehaviour
 			Vector3 edge = vertex1 - vertex;
 			Vector3 edge1 = vertex2 - vertex;
 
-			//get area
 			Vector3 cross = Vector3.Cross(edge, edge1);
 
-			//triangle area is half of rectangle
+			//triangle area is half of rectangle area
 			surfaceAreaOfMesh += (cross.magnitude / 2);
 		}
 		_text.text = $"{surfaceAreaOfMesh}m²";
-		//Debug.Log($"{_mesh.name} surfaceArea = {surfaceAreaOfMesh}m²");
 	}
-
-
-	//private void OnDrawGizmosSelected()
-	//{
-
-	//}
 }
