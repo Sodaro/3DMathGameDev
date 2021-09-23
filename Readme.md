@@ -2,4 +2,4 @@
 
 
 Assignment 5:
-![](https://imgur.com/XVBUmdY.gif
+![Alt Text](https://imgur.com/XVBUmdY.gif
