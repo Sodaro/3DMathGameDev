@@ -8,7 +8,6 @@ public class SurfaceAreaCalculator : MonoBehaviour
     [SerializeField] private Mesh _mesh;
 	[SerializeField] private TextMesh _text;
 
-
 	private Vector3[] vertices;
 	private int[] triangles;
 
