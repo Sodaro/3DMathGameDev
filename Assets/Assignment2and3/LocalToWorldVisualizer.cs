@@ -7,8 +7,8 @@ public class LocalToWorldVisualizer : MonoBehaviour
     [SerializeField] private Vector3 _localOffset;
 
     private Vector3 _targetWorldPos;
-	private void OnDrawGizmos()
-	{
+    private void OnDrawGizmos()
+    {
         Transform tf = transform;
 
         Vector3 transformedOffset = tf.position + (_localOffset.x * tf.right) + (_localOffset.y * tf.up) + (_localOffset.z * tf.forward);
@@ -23,5 +23,5 @@ public class LocalToWorldVisualizer : MonoBehaviour
         Gizmos.DrawLine(Vector3.zero, transform.position);
         Gizmos.DrawSphere(_targetWorldPos, 0.5f);
 
-	}
+    }
 }

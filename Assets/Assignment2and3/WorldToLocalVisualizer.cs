@@ -7,8 +7,8 @@ public class WorldToLocalVisualizer : MonoBehaviour
 
     //this is based on the assigned world position
     [SerializeField] private Vector3 _spherePosRelative;
-	private void OnDrawGizmos()
-	{
+    private void OnDrawGizmos()
+    {
 
         Vector3 offset = _sphereWorldPosition - transform.position;
 
@@ -31,6 +31,6 @@ public class WorldToLocalVisualizer : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + _spherePosRelative);
 
-        
-	}
+
+    }
 }

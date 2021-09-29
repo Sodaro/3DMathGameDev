@@ -157,7 +157,10 @@ MonoBehaviour:
   sideLength: 3
   rotationDelay: 1
   density: 1
-  points: []
+  points:
+  - {x: 3, y: 0, z: 0}
+  - {x: -1.5000002, y: 0, z: 2.598076}
+  - {x: -1.4999998, y: 0, z: -2.5980763}
   startColor: {r: 1, g: 0, b: 0.92530394, a: 1}
   endColor: {r: 0, g: 0.9690399, b: 1, a: 1}
 --- !u!4 &1838819693
