@@ -153,15 +153,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineThickness: 5
-  numberOfSides: 3
-  sideLength: 1
+  numberOfSides: 5
+  vertsPerLine: 35
+  sideLength: 13
   rotationDelay: 0.25
-  density: 1
-  points:
-  - {x: 1, y: 0, z: 0}
-  - {x: -0.50000006, y: 0, z: 0.8660254}
-  - {x: -0.4999999, y: 0, z: -0.86602545}
-  startColor: {r: 0, g: 0, b: 1, a: 1}
+  density: 2
+  startColor: {r: 1, g: 0.5461416, b: 0, a: 0.24705882}
   endColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &1838819693
 Transform:

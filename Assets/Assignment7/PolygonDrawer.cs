@@ -7,14 +7,17 @@ public class PolygonDrawer : MonoBehaviour
 {
     [SerializeField, Tooltip("The thickness of the debug line")] private float lineThickness = 5f;
     [SerializeField, Tooltip("The amount of sides in the polygon")] private int numberOfSides = 3;
+    [SerializeField, Tooltip("The amount of 'lines' per line")] private int vertsPerLine = 4;
     [SerializeField, Tooltip("The length of each side and radius of circle")] private int sideLength = 1;
     [SerializeField, Tooltip("Delay between each rotation")] private float rotationDelay = 0.25f;
     [SerializeField, Tooltip("Density of line connections")] private int density = 1;
-    [SerializeField] private List<Vector3> points;
+    [SerializeField, Tooltip("Scales the lines by distance from center")] private bool scaleByDistance = false;
 
     [SerializeField, Tooltip("The starting color")] private Color startColor = Color.blue;
     [SerializeField, Tooltip("The ending color")] private Color endColor = Color.red;
 
+
+    private List<List<Vector3>> points;
     private Coroutine coroutine;
 
     private void Start()
@@ -39,11 +42,14 @@ public class PolygonDrawer : MonoBehaviour
         }
     }
 
+    //place points by rotating
     private IEnumerator PlacePoints()
     {
         while (true)
         {
-            points = new List<Vector3>();
+            points = new List<List<Vector3>>();
+            points.Add(new List<Vector3>());
+
             float rotationIncrement = 360 / numberOfSides; //the rotation amount in degrees (which is used by Quaternion.Euler)
 
             for (int i = 0; i < numberOfSides; i++)
@@ -55,22 +61,30 @@ public class PolygonDrawer : MonoBehaviour
                     transform.rotation = Quaternion.Euler(0, rotationIncrement * i, 0);
 
                 Vector3 point = transform.right * sideLength;
-                points.Add(point);
+                points[0].Add(point);
                 yield return new WaitForSeconds(rotationDelay);
             }
         }
     }
 
+    //place points using maf
     private void PlacePointsV2()
     {
-        points = new List<Vector3>();
+        points = new List<List<Vector3>>();
 
-        for (int i = 0; i < numberOfSides; i++)
+        for (int j = 0; j < vertsPerLine; j++)
         {
-            float angleRadians = Mathf.PI * 2 / numberOfSides; //the rotation amount in degrees (which is used by Quaternion.Euler)
+            List<Vector3> ring = new List<Vector3>();
+            float vertAngleRadians = Mathf.PI * 2 / vertsPerLine; //the rotation amount in degrees (which is used by Quaternion.Euler)
+            float yOffset = Mathf.Sin(vertAngleRadians * j) * sideLength;
 
-            Vector3 point = new Vector3(Mathf.Cos(angleRadians * i) * sideLength, 0, Mathf.Sin(angleRadians * i) * sideLength);
-            points.Add(point);
+            for (int i = 0; i < numberOfSides; i++)
+            {
+                float angleRadians = Mathf.PI * 2 / numberOfSides; //the rotation amount in degrees (which is used by Quaternion.Euler)
+                Vector3 point = transform.TransformPoint(new Vector3(Mathf.Cos(angleRadians * i) * sideLength, yOffset, Mathf.Sin(angleRadians * i) * sideLength));
+                ring.Add(point);
+            }
+            points.Add(ring);
         }
     }
 
@@ -87,19 +101,25 @@ public class PolygonDrawer : MonoBehaviour
         if (points.Count == 0)
             return;
 
-        if (density >= points.Count)
+        if (density >= points[0].Count)
             return;
 
-        for (int i = 0; i < points.Count + density; i++)
+        for (int j = 0; j < points.Count; j++)
         {
-            //the final points should connect to the first ones based on density etc, use modulo connect
-            int pointToConnectTo = (i + density) % points.Count;
-            Vector3 pos1 = points[i % points.Count];
-            Vector3 pos2 = points[pointToConnectTo];
+            for (int i = 0; i < points[j].Count + density; i++)
+            {
+                //the final points should connect to the first ones based on density etc, use modulo connect
+                int ringToConnectTo = (j + 1) % points.Count;
+                int pointToConnectTo = (i + density) % points[j].Count;
+                Vector3 pos1 = points[j][i % points[j].Count];
+                Vector3 pos2 = points[j][pointToConnectTo];
 
-            Handles.color = Color.Lerp(startColor, endColor, (float)i / (points.Count + density));
-            Handles.DrawLine(pos1, pos2, lineThickness);
+                Handles.color = Color.Lerp(startColor, endColor, (float)i / (points[j].Count + density));
+                Handles.DrawLine(pos1, pos2, lineThickness);
+
+                Handles.color = Color.Lerp(startColor, endColor, (float)i / points.Count);
+                Handles.DrawLine(pos1, points[ringToConnectTo][i % points[j].Count], lineThickness);
+            }
         }
-
     }
 }
