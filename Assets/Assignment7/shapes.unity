@@ -154,15 +154,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineThickness: 5
   numberOfSides: 3
-  sideLength: 3
-  rotationDelay: 1
+  sideLength: 1
+  rotationDelay: 0.25
   density: 1
   points:
-  - {x: 3, y: 0, z: 0}
-  - {x: -1.5000002, y: 0, z: 2.598076}
-  - {x: -1.4999998, y: 0, z: -2.5980763}
-  startColor: {r: 1, g: 0, b: 0.92530394, a: 1}
-  endColor: {r: 0, g: 0.9690399, b: 1, a: 1}
+  - {x: 1, y: 0, z: 0}
+  - {x: -0.50000006, y: 0, z: 0.8660254}
+  - {x: -0.4999999, y: 0, z: -0.86602545}
+  startColor: {r: 0, g: 0, b: 1, a: 1}
+  endColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &1838819693
 Transform:
   m_ObjectHideFlags: 0

@@ -61,7 +61,6 @@ public class PolygonDrawer : MonoBehaviour
         }
     }
 
-
     private void PlacePointsV2()
     {
         points = new List<Vector3>();
@@ -81,8 +80,8 @@ public class PolygonDrawer : MonoBehaviour
         Handles.DrawWireDisc(Vector3.zero, Vector3.up, sideLength, lineThickness);
 
         //draw the shape without coroutine in scene view
-        #if Unity_Editor
-            PlacePointsV2();
+        #if UNITY_EDITOR
+        PlacePointsV2();
         #endif
 
         if (points.Count == 0)
@@ -93,12 +92,10 @@ public class PolygonDrawer : MonoBehaviour
 
         for (int i = 0; i < points.Count + density; i++)
         {
-            Vector3 pos1;
-            Vector3 pos2;
             //the final points should connect to the first ones based on density etc, use modulo connect
             int pointToConnectTo = (i + density) % points.Count;
-            pos1 = points[i % points.Count];
-            pos2 = points[pointToConnectTo];
+            Vector3 pos1 = points[i % points.Count];
+            Vector3 pos2 = points[pointToConnectTo];
 
             Handles.color = Color.Lerp(startColor, endColor, (float)i / (points.Count + density));
             Handles.DrawLine(pos1, pos2, lineThickness);

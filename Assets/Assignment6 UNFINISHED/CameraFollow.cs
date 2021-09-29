@@ -12,8 +12,6 @@ public class CameraFollow : MonoBehaviour
     }
     void Update()
     {
-
-        float horizontal = Input.GetAxisRaw("Horizontal");
         transform.position = _player.transform.TransformPoint(offset);
         transform.up = _player.transform.up;
     }
