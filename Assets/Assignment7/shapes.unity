@@ -153,13 +153,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineThickness: 5
-  numberOfSides: 5
-  vertsPerLine: 35
-  sideLength: 13
-  rotationDelay: 0.25
-  density: 2
-  startColor: {r: 1, g: 0.5461416, b: 0, a: 0.24705882}
-  endColor: {r: 1, g: 0, b: 0, a: 1}
+  numberOfSides: 32
+  vertsPerLine: 32
+  sideLength: 5
+  density: 1
+  scaleByDistance: 1
+  height: 1
+  startColor: {r: 1, g: 0, b: 0, a: 1}
+  midColor: {r: 0, g: 1, b: 0.04313922, a: 1}
+  endColor: {r: 0, g: 0.028149843, b: 1, a: 1}
+  drawUnitCircle: 1
+  makeRounded: 1
 --- !u!4 &1838819693
 Transform:
   m_ObjectHideFlags: 0
