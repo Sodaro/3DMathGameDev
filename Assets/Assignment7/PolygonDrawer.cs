@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class PolygonDrawer : MonoBehaviour
 {
-    [SerializeField, Tooltip("The thickness of the debug line")] private float lineThickness = 5f;
+    //[SerializeField, Tooltip("The thickness of the debug line")] private float lineThickness = 5f;
     [SerializeField, Tooltip("The amount of sides in the polygon")] private int numberOfSides = 3;
     [SerializeField, Tooltip("The amount of 'lines' per line")] private int vertsPerLine = 4;
-    [SerializeField, Tooltip("The length of each side and radius of circle")] private float sideLength = 1;
+    [SerializeField, Tooltip("The length of each side and radius of circle")] private float radius = 5;
     [SerializeField, Tooltip("Density of line connections")] private int density = 1;
     [SerializeField, Tooltip("Scales the lines by distance from center")] private bool scaleByDistance = false;
     [SerializeField, Tooltip("Height of the shape")] private float height = 1;
@@ -18,27 +18,82 @@ public class PolygonDrawer : MonoBehaviour
     [SerializeField, Tooltip("The middle color")] private Color midColor = Color.blue;
     [SerializeField, Tooltip("The top color")] private Color endColor = Color.blue;
 
-    [SerializeField] private bool drawUnitCircle = false;
+    //[SerializeField] private bool drawUnitCircle = false;
 
     [SerializeField, Tooltip("Doubles the edge loops, making it rounded")] private bool makeRounded = false;
 
 
     private List<List<Vector3>> outsideLoop;
 
+
+    public void OnSidesChanged(string input)
+    {
+        if (!int.TryParse(input, out int value))
+            return;
+        //if (value < 3)
+        //    value = 3;
+
+        numberOfSides = value;
+        CreateShape();
+    }
+
+    public void OnVertsChanged(string input)
+    {
+        if (!int.TryParse(input, out int value))
+            return;
+
+        vertsPerLine = value;
+        CreateShape();
+    }
+
+    public void OnRadiusChanged(string input)
+    {
+        if (!float.TryParse(input, out float value))
+            return;
+        radius = value;
+        CreateShape();
+    }
+
+    public void OnDensityChanged(string input)
+    {
+        if (!int.TryParse(input, out int value))
+            return;
+        density = value;
+        CreateShape();
+    }
+    public void OnHeightChanged(string input)
+    {
+        if (!float.TryParse(input, out float value))
+            return;
+        height = value;
+        CreateShape();
+    }
+    public void OnStartColorChanged(Color color) => startColor = color;
+
+    public void OnMidColorChanged(Color color) => midColor = color;
+
+    public void OnEndColorChanged(Color color) => endColor = color;
+
+    public void OnScalingToggled(bool value)
+    {
+        scaleByDistance = value;
+        CreateShape();
+    }
+
+    public void OnMakeRoundedPressed(bool value)
+    {
+        makeRounded = value;
+        CreateShape();
+    }
+
+
     private void Start()
     {
         UnityEditor.SceneView.FocusWindowIfItsOpen(typeof(UnityEditor.SceneView));
     }
 
-    private void OnValidate()
+    private void CreateShape()
     {
-        if (numberOfSides < 3)
-        {
-            numberOfSides = 3;
-        }
-        if (outsideLoop?.Count > 0)
-            outsideLoop.Clear();
-
         if (makeRounded)
         {
             MakeTorus();
@@ -47,6 +102,18 @@ public class PolygonDrawer : MonoBehaviour
         {
             PlacePointsV2();
         }
+    }
+
+    private void OnValidate()
+    {
+        //if (numberOfSides < 3)
+        //{
+        //    numberOfSides = 3;
+        //}
+        if (outsideLoop?.Count > 0)
+            outsideLoop.Clear();
+
+        CreateShape();
     }
 
     //place points using maf
@@ -61,7 +128,9 @@ public class PolygonDrawer : MonoBehaviour
         float initialOffset = 0;
 
         if (vertsPerLine > 1)
-            initialOffset = offsetPerLine * (vertsPerLine - 1) / 2;
+            initialOffset = offsetPerLine * (vertsPerLine-1) / 2;
+
+        Debug.Log($"{initialOffset}");
 
         for (int j = 0; j < vertsPerLine; j++)
         {
@@ -73,7 +142,7 @@ public class PolygonDrawer : MonoBehaviour
             for (int i = 0; i < numberOfSides; i++)
             {
                 float angleRadians = Mathf.PI * 2 / numberOfSides; //the rotation amount in degrees (which is used by Quaternion.Euler)
-                Vector3 point = transform.TransformPoint(GetPointOnLoop(angleRadians * i, dist, sideLength, -initialOffset + yOffset));
+                Vector3 point = transform.TransformPoint(GetPointOnLoop(angleRadians * i, dist, radius, -initialOffset + yOffset));
                 ring.Add(point);
             }
             outsideLoop.Add(ring);
@@ -83,9 +152,6 @@ public class PolygonDrawer : MonoBehaviour
     private void MakeTorus()
     {
         outsideLoop = new List<List<Vector3>>();
-
-        if (vertsPerLine == 0)
-            vertsPerLine = 2;
 
         float ringRadius = 1f;
 
@@ -98,9 +164,9 @@ public class PolygonDrawer : MonoBehaviour
                 float centerRadians = Mathf.PI * 2 / numberOfSides; //the rotation amount in degrees (which is used by Quaternion.Euler)
                 float ringRadians = Mathf.PI * 2 / vertsPerLine;
 
-                float x = Mathf.Cos(centerRadians*j) * (sideLength + ringRadius * Mathf.Cos(ringRadians*i));
+                float x = Mathf.Cos(centerRadians*j) * (radius + ringRadius * Mathf.Cos(ringRadians*i));
                 float y = ringRadius * Mathf.Sin(ringRadians * i);
-                float z = Mathf.Sin(centerRadians * j) * (sideLength + ringRadius * Mathf.Cos(ringRadians * i));
+                float z = Mathf.Sin(centerRadians * j) * (radius + ringRadius * Mathf.Cos(ringRadians * i));
 
                 Vector3 point = new Vector3(x, y, z);
                 Vector3 transformedPoint = transform.TransformPoint(point);
@@ -132,11 +198,31 @@ public class PolygonDrawer : MonoBehaviour
         return point;
     }
 
-
-    private void OnDrawGizmos()
+    static Material lineMaterial;
+    static void CreateLineMaterial()
     {
-        if (drawUnitCircle)
-            Handles.DrawWireDisc(Vector3.zero, Vector3.up, sideLength, lineThickness);
+        if (!lineMaterial)
+        {
+            // Unity has a built-in shader that is useful for drawing
+            // simple colored things.
+            Shader shader = Shader.Find("Hidden/Internal-Colored");
+            lineMaterial = new Material(shader);
+            lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+            // Turn on alpha blending
+            lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            // Turn backface culling off
+            lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            // Turn off depth writes
+            lineMaterial.SetInt("_ZWrite", 0);
+        }
+    }
+
+
+    private void OnRenderObject()
+    {
+        //if (drawUnitCircle)
+            //Handles.DrawWireDisc(Vector3.zero, Vector3.up, radius, lineThickness);
 
         if (outsideLoop == null)
             return;
@@ -147,7 +233,20 @@ public class PolygonDrawer : MonoBehaviour
         if (density >= outsideLoop[0].Count)
             return;
 
+        CreateLineMaterial();
+        // Apply the line material
+        lineMaterial.SetPass(0);
+
+        GL.PushMatrix();
+        // Set transformation matrix for drawing to
+        // match our transform
+        GL.MultMatrix(transform.localToWorldMatrix);
+
+
         int midPoint = outsideLoop.Count / 2;
+
+        // Draw lines
+        GL.Begin(GL.LINES);
 
         for (int i = 0; i < outsideLoop.Count; i++)
         {
@@ -155,17 +254,25 @@ public class PolygonDrawer : MonoBehaviour
             List<Vector3> nextRing = outsideLoop[(i + 1) % outsideLoop.Count];
 
             Color lineColor;
-            if (midPoint > 0)
+            
+            if (midPoint > 0 && outsideLoop.Count > 2)
             {
-                if (i <= midPoint)
-                    lineColor = Color.Lerp(startColor, midColor, (float)i / midPoint);
+                //We want lerping between 3 colors, find the first,second and last thirds and lerp
+                int firstThird = outsideLoop.Count / 3;
+                int secondThrid = outsideLoop.Count / 3 * 2;
+                if (i < firstThird)
+                    lineColor = Color.Lerp(startColor, midColor, (float)i / firstThird);
+                else if (i < secondThrid)
+                    lineColor = Color.Lerp(midColor, endColor, (float)(i-firstThird) / secondThrid);
                 else
-                    lineColor = Color.Lerp(midColor, endColor, (float)(i - midPoint) / midPoint);
+                    lineColor = Color.Lerp(endColor, startColor, (float)(i-secondThrid) / firstThird);
+
             }
             else
                 lineColor = startColor;
 
-            Handles.color = lineColor;
+            //Handles.color = lineColor;
+            GL.Color(lineColor);
 
             for (int j = 0; j < ring.Count + density; j++)
             {
@@ -176,14 +283,21 @@ public class PolygonDrawer : MonoBehaviour
                 Vector3 r1P1 = ring[point];
                 Vector3 r1P2 = ring[pointToConnectTo];
 
-                Handles.DrawLine(r1P1, r1P2, lineThickness);
+                //Handles.DrawLine(r1P1, r1P2, lineThickness);
+                GL.Vertex3(r1P1.x, r1P1.y, r1P1.z);
+                GL.Vertex3(r1P2.x, r1P2.y, r1P2.z);
 
+                //torus shape connects to the next ring
                 if (makeRounded)
                 {
                     Vector3 r2P1 = nextRing[point];
-                    Handles.DrawLine(r1P1, r2P1, lineThickness);
+                    GL.Vertex3(r1P1.x, r1P1.y, r1P1.z);
+                    GL.Vertex3(r2P1.x, r2P1.y, r2P1.z);
+                    //Handles.DrawLine(r1P1, r2P1, lineThickness);
                 }
             }
         }
+        GL.End();
+        GL.PopMatrix();
     }
 }
